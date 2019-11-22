@@ -3,6 +3,7 @@ from os.path import join, isdir, exists
 import zipfile
 import shutil
 
+# KEY_FILE 이 있는 폴더를 모아준다.
 KEY_FILE = 'manage.py'
 
 def remove_dir_if_exists(dirname):
@@ -50,7 +51,7 @@ for f in listdir('.'):
         print(f'Error: {name} has no \'{KEY_FILE}\' in exam dir. You should check it yourself.')
         failure_count = failure_count + 1
     except Exception as e:
-        print(f'Error: {e}')
+        print(f'Error: {e}. You should check it yourself.')
         failure_count = failure_count + 1
     finally:
         remove_dir_if_exists('tmp')
