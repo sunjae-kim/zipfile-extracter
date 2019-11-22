@@ -3,15 +3,16 @@ from os.path import join, isdir, exists
 import zipfile
 import shutil
 
+KEY_FILE = 'manage.py'
+
 def remove_dir_if_exists(dirname):
     if exists(dirname) and isdir(dirname):
         shutil.rmtree(dirname)
 
 def get_exam_dir(dirname):
     files = listdir(dirname)
-    if 'manage.py' not in files:
-        # return get_exam_dir(join(dirname, next(f for f in files if isdir(join(dirname, f)))))
-        return get_exam_dir(join(dirname, files[0]))
+    if KEY_FILE not in files:
+        return get_exam_dir(join(dirname, next(f for f in files if isdir(join(dirname, f)))))
     return dirname
 
 # Remove and create `exams` dir if exists
@@ -30,15 +31,21 @@ for f in listdir('.'):
 chdir(EXAMS_DIR)
 for f in listdir('.'):
     _, name = f.split('_')
-    TMP_DIR = join(EXAMS_DIR, 'tmp')
-    EXAM_DIR = get_exam_dir(TMP_DIR)
-    NAME_DIR = join(EXAMS_DIR, name)
+    print(f'========== {name} ==========')
 
     # Extract exam zipfile
+    TMP_DIR = join(EXAMS_DIR, 'tmp')
     exam_file = zipfile.ZipFile(join(f, listdir(f)[0]))
     exam_file.extractall(TMP_DIR)
 
-    shutil.move(EXAM_DIR, NAME_DIR)
-    remove_dir_if_exists(f)
-    remove_dir_if_exists('tmp')
-    print(name)
+    try:
+        EXAM_DIR = get_exam_dir(TMP_DIR)
+        NAME_DIR = join(EXAMS_DIR, name)
+        shutil.move(EXAM_DIR, NAME_DIR)
+        remove_dir_if_exists(f)
+    except StopIteration:
+        print(f'Error: {name} has no \'{KEY_FILE}\' in exam dir. You should check it yourself.')
+    except Exception as e:
+        print(f'Error: {e}')
+    finally:
+        remove_dir_if_exists('tmp')
