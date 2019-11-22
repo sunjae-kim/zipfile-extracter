@@ -27,6 +27,9 @@ for f in listdir('.'):
         exams_file = zipfile.ZipFile(f)
         exams_file.extractall(EXAMS_DIR)
 
+success_count = 0
+failure_count = 0
+
 # Extract exam zipfile
 chdir(EXAMS_DIR)
 for f in listdir('.'):
@@ -45,7 +48,13 @@ for f in listdir('.'):
         remove_dir_if_exists(f)
     except StopIteration:
         print(f'Error: {name} has no \'{KEY_FILE}\' in exam dir. You should check it yourself.')
+        failure_count = failure_count + 1
     except Exception as e:
         print(f'Error: {e}')
+        failure_count = failure_count + 1
     finally:
         remove_dir_if_exists('tmp')
+    success_count = success_count + 1
+    print('Successfully extracted 🎉 \n')
+
+print(f'Success: {success_count} | Failure: {failure_count}')
