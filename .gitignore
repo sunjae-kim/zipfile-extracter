@@ -2,3 +2,4 @@
 *.zip
 exams
 assets
+tests.py

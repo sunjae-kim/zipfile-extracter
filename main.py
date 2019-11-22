@@ -3,8 +3,11 @@ from os.path import join, isdir, exists
 import zipfile
 import shutil
 
-# KEY_FILE 이 있는 폴더를 모아준다.
-KEY_FILE = 'manage.py'
+KEY_FILE = 'manage.py'              # 교육생 제출파일에서 해당파일이 있는 폴더들만 모아준다.
+DJANGO_APP_DIR_PATH = 'articles'    # Django 에서 test.py 파일이 들어갈 app 이름을 작성한다.
+
+TEST_FILE_PATH = join(getcwd(), 'tests.py')
+HAS_TEST_FILE = exists(TEST_FILE_PATH)
 
 def remove_dir_if_exists(dirname):
     if exists(dirname) and isdir(dirname):
@@ -31,7 +34,6 @@ for f in listdir('.'):
 success_count = 0
 failure_count = 0
 
-# Extract exam zipfile
 chdir(EXAMS_DIR)
 for f in listdir('.'):
     _, name = f.split('_')
@@ -45,8 +47,14 @@ for f in listdir('.'):
     try:
         EXAM_DIR = get_exam_dir(TMP_DIR)
         NAME_DIR = join(EXAMS_DIR, name)
+
+        if HAS_TEST_FILE:
+            shutil.copyfile(TEST_FILE_PATH, join(EXAM_DIR, DJANGO_APP_DIR_PATH, 'tests.py'))
+
         shutil.move(EXAM_DIR, NAME_DIR)
         remove_dir_if_exists(f)
+        success_count = success_count + 1
+        print('Successfully extracted 🎉 \n')
     except StopIteration:
         print(f'Error: {name} has no \'{KEY_FILE}\' in exam dir. You should check it yourself.')
         failure_count = failure_count + 1
@@ -55,7 +63,7 @@ for f in listdir('.'):
         failure_count = failure_count + 1
     finally:
         remove_dir_if_exists('tmp')
-    success_count = success_count + 1
-    print('Successfully extracted 🎉 \n')
 
+if not HAS_TEST_FILE:
+    print('Warning: The test file does not exits. Please add the test file and try again.')
 print(f'Success: {success_count} | Failure: {failure_count}')
